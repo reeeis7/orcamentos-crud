@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Garagem Reis</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="shortcut icon" href="images/logo.png" type="image/png">
+    <style>
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            max-width: 1000px;
+            margin: 50px auto;
+            padding: 0 20px;
+        }
+        
+        .menu-card {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            text-align: center;
+            text-decoration: none;
+            color: #333;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+            display: block;
+        }
+        
+        .menu-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+        }
+        
+        .menu-icon {
+            font-size: 40px;
+            margin-bottom: 15px;
+        }
+        
+        .menu-card h3 {
+            color: #e74c3c;
+            margin-bottom: 8px;
+        }
+        
+        .menu-card p {
+            font-size: 13px;
+            color: #666;
+        }
+        
+        .titulo {
+            text-align: center;
+            margin: 40px 0 20px;
+        }
+        
+        .titulo h1 {
+            color: #2c2c2c;
+        }
+        
+        .titulo p {
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-container">
+            <ul>
+                <li class="navbar-logo"><a href="index.html">Garagem Reis</a></li>
+                <li><a href="criar.html">Novo</a></li>
+                <li><a href="listar.html">Listar</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="titulo">
+        <h1>📋 Sistema de Orçamentos Garagem Reis</h1>
+    </div>
+
+    <div class="menu-grid">
+        <a href="criar.html" class="menu-card">
+            <div class="menu-icon">📝</div>
+            <h3>Novo Orçamento</h3>
+            <p>Cadastrar um novo orçamento</p>
+        </a>
+
+        <a href="listar.html" class="menu-card">
+            <div class="menu-icon">📋</div>
+            <h3>Ver Orçamentos</h3>
+            <p>Listar todos os orçamentos</p>
+        </a>
+
+        <a href="editar.html" class="menu-card">
+            <div class="menu-icon">✏️</div>
+            <h3>Editar</h3>
+            <p>Alterar dados de um orçamento</p>
+        </a>
+
+        <a href="deletar.html" class="menu-card">
+            <div class="menu-icon">🗑️</div>
+            <h3>Remover</h3>
+            <p>Excluir um orçamento</p>
+        </a>
+    </div>
+</body>
+</html>

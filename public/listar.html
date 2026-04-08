@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Listar Orçamentos</title>
+    <link rel="shortcut icon" href="images/logo.png" type="image/png">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-container">
+            <ul>
+                <li class="navbar-logo"><a href="index.html">Garagem Reis</a></li>
+                <li><a href="criar.html">Novo</a></li>
+                <li><a href="listar.html">Listar</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div style="max-width: 1200px; margin: 40px auto; padding: 0 20px;">
+        <div style="background: white; border-radius: 8px; padding: 25px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+            <h2 style="margin-bottom: 20px; color: #2c2c2c;">📋 Orçamentos Cadastrados</h2>
+            
+            <div class="busca-area">
+                <label>🔍 Buscar por cliente:</label>
+                <div>
+                    <input type="text" id="filtro" placeholder="Digite o nome do cliente...">
+                    <button class="btn-search" onclick="carregarLista()">Buscar</button>
+                </div>
+            </div>
+            
+            <div class="tabela-container">
+                <div id="lista"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        async function carregarLista() {
+            const filtro = document.getElementById('filtro').value.toLowerCase();
+            const orcamentos = await buscarOrcamentos();
+            
+            let dadosFiltrados = orcamentos;
+            if (filtro) {
+                dadosFiltrados = orcamentos.filter(o => o.cliente.toLowerCase().includes(filtro));
+            }
+            
+            if (dadosFiltrados.length === 0) {
+                document.getElementById('lista').innerHTML = '<p style="text-align: center; padding: 40px;">Nenhum orçamento encontrado</p>';
+                return;
+            }
+            
+            let html = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Data</th>
+                            <th>Cliente</th>
+                            <th>Veículo</th>
+                            <th>Serviço</th>
+                            <th>Valor</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            dadosFiltrados.forEach(o => {
+                html += `
+                    <tr>
+                        <td>${o.id}</td>
+                        <td>${formatarData(o.data_criacao)}</td>
+                        <td>${o.cliente}</td>
+                        <td>${o.veiculo}</td>
+                        <td>${o.servico}</td>
+                        <td>${formatarMoeda(o.valor)}</td>
+                        <td><span class="status status-${o.status}">${o.status}</span></td>
+                    </tr>
+                `;
+            });
+            
+            html += `</tbody></table>`;
+            document.getElementById('lista').innerHTML = html;
+        }
+        
+        carregarLista();
+    </script>
+</body>
+</html>

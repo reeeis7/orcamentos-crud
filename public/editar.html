@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Orçamento</title>
+    <link rel="shortcut icon" href="images/logo.png" type="image/png">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-container">
+            <ul>
+                <li class="navbar-logo"><a href="index.html">Garagem Reis</a></li>
+                <li><a href="criar.html">Novo</a></li>
+                <li><a href="listar.html">Listar</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="header">
+            <h1>✏️ Editar Orçamento</h1>
+            <p>Busque pelo ID e altere os dados</p>
+        </div>
+
+        <div class="form-container">
+            <div class="busca-area">
+                <label>ID do Orçamento:</label>
+                <div>
+                    <input type="number" id="buscar-id" placeholder="Digite o ID">
+                    <button class="btn-search" onclick="buscarOrcamento()">Buscar</button>
+                </div>
+            </div>
+
+            <div id="info" style="display: none;"></div>
+
+            <div id="form-edicao" style="display: none;">
+                <div class="form-group">
+                    <label>Cliente</label>
+                    <input type="text" id="edit-cliente">
+                </div>
+                <div class="form-group">
+                    <label>Veículo</label>
+                    <input type="text" id="edit-veiculo">
+                </div>
+                <div class="form-group">
+                    <label>Serviço</label>
+                    <input type="text" id="edit-servico">
+                </div>
+                <div class="form-group">
+                    <label>Valor</label>
+                    <input type="number" id="edit-valor" step="0.01">
+                </div>
+                <div class="form-group">
+                    <label>Status</label>
+                    <select id="edit-status">
+                        <option value="pendente">Pendente</option>
+                        <option value="aprovado">Aprovado</option>
+                        <option value="cancelado">Cancelado</option>
+                    </select>
+                </div>
+                <button class="btn-submit" onclick="salvarEdicao()">Salvar Alterações</button>
+            </div>
+
+            <div id="resultado" class="resultado"></div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        let idAtual = null;
+        
+        async function buscarOrcamento() {
+            const id = document.getElementById('buscar-id').value;
+            if (!id) {
+                alert('Digite um ID');
+                return;
+            }
+            
+            const orcamento = await buscarOrcamentoPorId(id);
+            
+            if (orcamento) {
+                idAtual = orcamento.id;
+                document.getElementById('info').innerHTML = `
+                    <div class="info-card">
+                        <p><strong>Orçamento #${orcamento.id}</strong></p>
+                        <p>Cliente: ${orcamento.cliente}</p>
+                        <p>Veículo: ${orcamento.veiculo}</p>
+                        <p>Valor: ${formatarMoeda(orcamento.valor)}</p>
+                    </div>
+                `;
+                document.getElementById('info').style.display = 'block';
+                
+                document.getElementById('edit-cliente').value = orcamento.cliente;
+                document.getElementById('edit-veiculo').value = orcamento.veiculo;
+                document.getElementById('edit-servico').value = orcamento.servico;
+                document.getElementById('edit-valor').value = orcamento.valor;
+                document.getElementById('edit-status').value = orcamento.status;
+                
+                document.getElementById('form-edicao').style.display = 'block';
+                limparResultado('resultado');
+            } else {
+                alert('Orçamento não encontrado');
+            }
+        }
+        
+        async function salvarEdicao() {
+            const dados = {
+                cliente: document.getElementById('edit-cliente').value,
+                veiculo: document.getElementById('edit-veiculo').value,
+                servico: document.getElementById('edit-servico').value,
+                valor: parseFloat(document.getElementById('edit-valor').value),
+                status: document.getElementById('edit-status').value
+            };
+            
+            const data = await atualizarOrcamento(idAtual, dados);
+            
+            if (data.success) {
+                mostrarSucesso('resultado', data.message);
+                setTimeout(() => {
+                    document.getElementById('buscar-id').value = '';
+                    document.getElementById('info').style.display = 'none';
+                    document.getElementById('form-edicao').style.display = 'none';
+                    limparResultado('resultado');
+                }, 2000);
+            } else {
+                mostrarErro('resultado', data.error || 'Erro ao atualizar');
+            }
+        }
+    </script>
+</body>
+</html>

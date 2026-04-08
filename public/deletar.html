@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Remover Orçamento</title>
+    <link rel="shortcut icon" href="images/logo.png" type="image/png">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-container">
+            <ul>
+                <li class="navbar-logo"><a href="index.html">Garagem Reis</a></li>
+                <li><a href="criar.html">Novo</a></li>
+                <li><a href="listar.html">Listar</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="header">
+            <h1>🗑️ Remover Orçamento</h1>
+            <p>Busque pelo ID e confirme a exclusão</p>
+        </div>
+
+        <div class="form-container">
+            <div class="busca-area">
+                <label>ID do Orçamento:</label>
+                <div>
+                    <input type="number" id="buscar-id" placeholder="Digite o ID">
+                    <button class="btn-search" onclick="buscarOrcamento()">Buscar</button>
+                </div>
+            </div>
+
+            <div id="info" style="display: none;"></div>
+
+            <button id="btn-deletar" class="btn-submit" style="background-color: #dc3545; display: none;" onclick="deletarOrcamento()">
+                Confirmar Remoção
+            </button>
+
+            <div id="resultado" class="resultado"></div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        let idAtual = null;
+        
+        async function buscarOrcamento() {
+            const id = document.getElementById('buscar-id').value;
+            if (!id) {
+                alert('Digite um ID');
+                return;
+            }
+            
+            const orcamento = await buscarOrcamentoPorId(id);
+            
+            if (orcamento) {
+                idAtual = orcamento.id;
+                document.getElementById('info').innerHTML = `
+                    <div class="info-card">
+                        <p><strong>⚠️ Tem certeza que deseja remover?</strong></p>
+                        <p><strong>Orçamento #${orcamento.id}</strong></p>
+                        <p>Cliente: ${orcamento.cliente}</p>
+                        <p>Veículo: ${orcamento.veiculo}</p>
+                        <p>Valor: ${formatarMoeda(orcamento.valor)}</p>
+                        <p style="color: #dc3545; margin-top: 10px;">Esta ação não pode ser desfeita!</p>
+                    </div>
+                `;
+                document.getElementById('info').style.display = 'block';
+                document.getElementById('btn-deletar').style.display = 'block';
+                limparResultado('resultado');
+            } else {
+                alert('Orçamento não encontrado');
+            }
+        }
+        
+        async function deletarOrcamento() {
+            if (!confirm(`Tem certeza que quer remover o orçamento #${idAtual}?`)) {
+                return;
+            }
+            
+            const data = await deletarOrcamento(idAtual);
+            
+            if (data.success) {
+                mostrarSucesso('resultado', data.message);
+                document.getElementById('buscar-id').value = '';
+                document.getElementById('info').style.display = 'none';
+                document.getElementById('btn-deletar').style.display = 'none';
+            } else {
+                mostrarErro('resultado', data.error || 'Erro ao remover');
+            }
+        }
+    </script>
+</body>
+</html>

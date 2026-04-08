@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Novo Orçamento</title>
+    <link rel="shortcut icon" href="images/logo.png" type="image/png">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-container">
+            <ul>
+                <li class="navbar-logo"><a href="index.html">Garagem Reis</a></li>
+                <li><a href="criar.html">Novo</a></li>
+                <li><a href="listar.html">Listar</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="header">
+            <h1>📝 Novo Orçamento</h1>
+            <p>Preencha os dados do cliente</p>
+        </div>
+
+        <div class="form-container">
+            <form id="formOrcamento">
+                <div class="form-group">
+                    <label>Nome do Cliente</label>
+                    <input type="text" id="cliente" required placeholder="Digite o nome completo">
+                </div>
+
+                <div class="form-group">
+                    <label>Veículo</label>
+                    <input type="text" id="veiculo" required placeholder="Ex: Fiat Uno 2014">
+                </div>
+
+                <div class="form-group">
+                    <label>Serviço</label>
+                    <select id="servico" required>
+                        <option value="">Selecione</option>
+                        <option value="Troca de Óleo">Troca de Óleo</option>
+                        <option value="Revisão Completa">Revisão Completa</option>
+                        <option value="Freios">Freios</option>
+                        <option value="Suspensão">Suspensão</option>
+                        <option value="Motor">Motor</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Valor (R$)</label>
+                    <input type="number" id="valor" required step="0.01" placeholder="0,00">
+                </div>
+
+                <button type="submit" class="btn-submit" id="btnSubmit">Salvar e Gerar PDF</button>
+            </form>
+
+            <div id="resultado" class="resultado"></div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        document.getElementById('formOrcamento').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const cliente = document.getElementById('cliente').value;
+            const veiculo = document.getElementById('veiculo').value;
+            const servico = document.getElementById('servico').value;
+            const valor = document.getElementById('valor').value;
+            
+            if (!cliente || !veiculo || !servico || !valor) {
+                mostrarErro('resultado', 'Preencha todos os campos');
+                return;
+            }
+            
+            const btn = document.getElementById('btnSubmit');
+            const textoOriginal = btn.innerHTML;
+            mostrarLoading(btn, textoOriginal);
+            
+            try {
+                const data = await criarOrcamento({ cliente, veiculo, servico, valor: parseFloat(valor) });
+                
+                if (data.success) {
+                    const div = document.getElementById('resultado');
+                    div.innerHTML = `
+                        <div class="mensagem-sucesso">
+                            ✅ ${data.message}<br><br>
+                            <a href="${data.pdf}" target="_blank" style="color: #e74c3c;">📄 Clique aqui para baixar o PDF</a>
+                        </div>
+                    `;
+                    div.classList.add('show');
+                    document.getElementById('formOrcamento').reset();
+                } else {
+                    mostrarErro('resultado', data.error || 'Erro ao criar');
+                }
+            } catch (error) {
+                mostrarErro('resultado', 'Erro de conexão');
+            } finally {
+                restaurarBotao(btn, textoOriginal);
+            }
+        });
+    </script>
+</body>
+</html>
