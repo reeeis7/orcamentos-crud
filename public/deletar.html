@@ -44,54 +44,97 @@
     </div>
 
     <script src="script.js"></script>
-    <script>
-        let idAtual = null;
+<script>
+    let idAtual = null;
+    
+    async function buscarOrcamento() {
+        const id = document.getElementById('buscar-id').value;
+        if (!id) {
+            alert('Digite um ID');
+            return;
+        }
         
-        async function buscarOrcamento() {
-            const id = document.getElementById('buscar-id').value;
-            if (!id) {
-                alert('Digite um ID');
-                return;
-            }
+        try {
+            const response = await fetch(`/orcamento/${id}`);
             
-            const orcamento = await buscarOrcamentoPorId(id);
-            
-            if (orcamento) {
+            if (response.ok) {
+                const orcamento = await response.json();
                 idAtual = orcamento.id;
+                
+                // Mostrar informações do orçamento
                 document.getElementById('info').innerHTML = `
                     <div class="info-card">
                         <p><strong>⚠️ Tem certeza que deseja remover?</strong></p>
                         <p><strong>Orçamento #${orcamento.id}</strong></p>
                         <p>Cliente: ${orcamento.cliente}</p>
                         <p>Veículo: ${orcamento.veiculo}</p>
-                        <p>Valor: ${formatarMoeda(orcamento.valor)}</p>
-                        <p style="color: #dc3545; margin-top: 10px;">Esta ação não pode ser desfeita!</p>
+                        <p>Serviço: ${orcamento.servico}</p>
+                        <p>Valor: R$ ${parseFloat(orcamento.valor).toFixed(2)}</p>
+                        <p>Status: ${orcamento.status}</p>
+                        <p style="color: #dc3545; margin-top: 10px;">⚠️ Esta ação não pode ser desfeita!</p>
                     </div>
                 `;
                 document.getElementById('info').style.display = 'block';
                 document.getElementById('btn-deletar').style.display = 'block';
-                limparResultado('resultado');
+                document.getElementById('resultado').classList.remove('show');
+                
             } else {
                 alert('Orçamento não encontrado');
+                document.getElementById('info').style.display = 'none';
+                document.getElementById('btn-deletar').style.display = 'none';
+                idAtual = null;
             }
+        } catch (error) {
+            console.error('Erro:', error);
+            alert('Erro ao buscar orçamento');
+        }
+    }
+    
+    async function deletarOrcamento() {
+        if (!confirm(`⚠️ Confirmar remoção do orçamento #${idAtual}? Esta ação não pode ser desfeita!`)) {
+            return; 
         }
         
-        async function deletarOrcamento() {
-            if (!confirm(`Tem certeza que quer remover o orçamento #${idAtual}?`)) {
-                return;
-            }
+        const btn = document.getElementById('btn-deletar');
+        const textoOriginal = btn.innerHTML;
+        btn.innerHTML = 'Removendo... ⏳';
+        btn.disabled = true;
+        
+        try {
+            const response = await fetch(`/orcamento/${idAtual}`, {
+                method: 'DELETE'
+            });
             
-            const data = await deletarOrcamento(idAtual);
+            const data = await response.json();
+            const div = document.getElementById('resultado');
             
-            if (data.success) {
-                mostrarSucesso('resultado', data.message);
+            if (response.ok && data.success) {
+
+                div.innerHTML = `<div class="mensagem-sucesso">✅ ${data.message}</div>`;
+                div.classList.add('show');
+                
                 document.getElementById('buscar-id').value = '';
                 document.getElementById('info').style.display = 'none';
                 document.getElementById('btn-deletar').style.display = 'none';
+                idAtual = null;
+                
+                setTimeout(() => {
+                    div.classList.remove('show');
+                }, 3000);
+                
             } else {
-                mostrarErro('resultado', data.error || 'Erro ao remover');
+                div.innerHTML = `<div class="mensagem-erro">❌ ${data.error || 'Erro ao remover'}</div>`;
+                div.classList.add('show');
             }
+        } catch (error) {
+            console.error('Erro:', error);
+            document.getElementById('resultado').innerHTML = `<div class="mensagem-erro">❌ Erro de conexão</div>`;
+            document.getElementById('resultado').classList.add('show');
+        } finally {
+            btn.innerHTML = textoOriginal;
+            btn.disabled = false;
         }
-    </script>
+    }
+</script>
 </body>
 </html>
